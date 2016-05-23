@@ -11,7 +11,7 @@ end prescaler;
 
 architecture default of prescaler is
 	signal ctr: std_logic_vector(31 downto 0);	
-	signal rstVal : std_logic_vector(31 downto 0) := X"007D7840";
+	signal rstVal : std_logic_vector(31 downto 0) := X"001D7840";
 begin
 		process(clkIn) begin
 		
