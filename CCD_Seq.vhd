@@ -19,6 +19,7 @@ architecture default of CCD_Seq is
     type stateType is ( CLEAR, READOUT );
     signal state    : stateType := CLEAR;
     signal ctr	    : std_logic_vector(31 downto 0);	
+    signal pixCtr   : std_logic_vector(10 downto 0);
 begin
     Ph2 <= not Ph1;
     process(clk, rst) begin
@@ -29,6 +30,8 @@ begin
 		when CLEAR =>
 		    case ctr is
 			when X"0000_0000" =>
+			    BT	<= '1';
+			    RS	<= '0';
 			    SH	<= '0';
 			    Ph1 <= '0';
 			when X"0000_0002" =>
@@ -45,19 +48,31 @@ begin
 		    else
 			ctr <= ctr + X"1";
 		    end if;
-
 		when READOUT =>
-		    if( ctr(0) = '0' ) then
-			Ph1 <= '1';
-		    else
-			Ph1 <= '0';
-		    end if;
-		    if( ctr = X"0000_0020" ) then
-			ctr <= X"0000_0000";
-			state <= CLEAR;
-		    else
-			ctr <= ctr + X"1";
-		    end if;
+		    case ctr is
+			when X"0000_000A" =>
+			    BT <= '0';
+			when X"0000_000C" =>
+			    RS <= '1';
+			when X"0000_000E" =>
+			    BT <= '1';
+			when X"0000_0010" =>
+			    RS <= '0';
+			when X"0000_0011" =>
+			    Ph1 <= not Ph1;
+			when X"0000_0013" =>
+			    sample <= '1';
+			when X"0000_0014" =>
+			    sample <= '0';
+			    ctr <= X"0000_0000";
+			    if( pixCtr = B"111_1111_1111" ) then
+				state <= CLEAR;
+			    else
+				pixCtr <= pixCtr + B"1";
+			    end if;
+			when others =>
+			    null;
+		    end case;
 	    end case; 
 	end if;
     end process;
