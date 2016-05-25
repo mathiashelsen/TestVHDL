@@ -50,22 +50,23 @@ begin
 		    end if;
 		when READOUT =>
 		    case ctr is
-			when X"0000_000A" =>
+			when X"0000_0009" =>
 			    BT <= '0';
-			when X"0000_000C" =>
+			when X"0000_000B" =>
 			    RS <= '1';
-			when X"0000_000E" =>
+			when X"0000_000D" =>
 			    BT <= '1';
-			when X"0000_0010" =>
+			when X"0000_000F" =>
 			    RS <= '0';
-			when X"0000_0011" =>
+			when X"0000_0010" =>
 			    Ph1 <= not Ph1;
-			when X"0000_0013" =>
+			when X"0000_0012" =>
 			    sample <= '1';
-			when X"0000_0014" =>
+			when X"0000_0013" =>
 			    sample <= '0';
 			    ctr <= X"0000_0000";
 			    if( pixCtr = B"111_1111_1111" ) then
+				pixCtr <= B"000_0000_0000";
 				state <= CLEAR;
 			    else
 				pixCtr <= pixCtr + B"1";
