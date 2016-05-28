@@ -5,18 +5,19 @@ use ieee.std_logic_unsigned.all;
 entity TestVHDL is
 	port(
 		CLOCK_50	: in std_logic;
-		LEDG		: out std_logic_vector(9 downto 0)
+		GPIO0_D	: out std_logic_vector(6 downto 0)
 	);
 end TestVHDL;
 
 architecture default of TestVHDL is
-	signal outCtr	: std_logic_vector(9 downto 0);
 	signal localClk : std_logic;
-	component prescaler
-		port( clkIn: in std_logic;
-		    clkOut: out std_logic );
-	end component;
-
+	signal sh			: std_logic;
+	signal ph1			: std_logic;
+	signal ph2			: std_logic;
+	signal bt			: std_logic;
+	signal rs			: std_logic;
+	signal sample		: std_logic;
+	
 	component CCD_Seq
 		port( 
 		    clk	: in std_logic;
@@ -29,24 +30,33 @@ architecture default of TestVHDL is
 		    rst	: in std_logic 
 		    );
 	end component;
+	
+	component mainPLL
+		port(
+			inclk0	: in std_logic;
+			c0			: out std_logic
+		);
+	end component;
 begin
 	-- LEDG <= outCtr;
-	U0: prescaler port map( CLOCK_50, localClk );
+	GPIO0_D(0) <= not sh;
+	GPIO0_D(1) <= not ph1;
+	GPIO0_D(2) <= not ph2;
+	GPIO0_D(3) <= not rs;
+	GPIO0_D(4) <= not bt;
+	GPIO0_D(5) <= sample;
+	GPIO0_D(6) <= localClk;
+	
+	U0: mainPLL port map( CLOCK_50, localClk );
 
 	U1: CCD_Seq port map(
 		clk => localClk, 
-		SH => open, 
-		Ph1 => LEDG(0), 
-		Ph2 => LEDG(1), 
-		RS => open,
-		BT => open,
-		sample => open,
+		SH => sh, 
+		Ph1 => ph1, 
+		Ph2 => ph2, 
+		RS => rs,
+		BT => bt,
+		sample => sample,
 		rst => '0');
-	process(localClk)
-	begin
-		if(localClk'event and localClk='1') then
-			outCtr <= outCtr + X"1";
-		end if;
-	end process;
 end architecture;
 	
